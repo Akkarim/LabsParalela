@@ -26,6 +26,12 @@
 #include <string>
 #include <omp.h>
 #include <math.h>
+#include <random>
+//#include <yourself>
+//#include <love>
+//#include <drugs>
+#include <time.h>
+
 using namespace std;
 
 //#define DEBUG = 1
@@ -64,7 +70,7 @@ void print_histo(
 	int      bin_count     /* in */,
 	float    min_meas      /* in */);
 
-bool validaCntHilos(int ch);/**********************************************************/
+
 
 int main(int argc, char* argv[]) { //********************************************************
 	int bin_count, bin;    // cantidad de bins, bin actual, bin == rango
@@ -73,35 +79,18 @@ int main(int argc, char* argv[]) { //*******************************************
 	vector<int> bin_counts;   // vector para contar valores por bin
 	int data_count;     // cantidad de datos
 	vector<float> data;    // vector de datos
+	/*
+	double omp_get_wtime();
+	double start;
+	double end;
+	*/
+		/*¡¡¡¡¡¡¡¡¡Nuestro Código!!!!!!!!!!!*/
 
 
-			/*¡¡¡¡¡¡¡¡¡Nuestro Código!!!!!!!!!!!*/
-
-	int n = 0;
-	int tCount = 0;
-	int cntRangos = 0;
-	int iMenor = 0;
-	int iMayor = 0;
-
-	while (!validaCntHilos(tCount)) {
-		cout << "Digite la cantidad de hilos ( >= 1 ): ";
-		cin >> tCount;
-		cout << endl;
-	}
-
-	cout << "Digite la cantidad de Rangos: " << endl;
-	cin >> cntRangos;
-	cout << "Digite la cantidad de Numeros: " << endl;
-	cin >> n;
-	cout << "Digite el intervalo Mayor: " << endl;
-	cin >> iMayor;
-	cout << "Digite el intervalo Menor: " << endl;
-	cin >> iMenor;
-
-
-
+	cout<<"Antes de get_args"<<endl;
 
 	/* Check and get command line args */
+	clock_t start = clock();
 	if (argc != 5) usage(argv[0]);
 	get_args(argv, bin_count, min_meas, max_meas, data_count);
 
@@ -118,6 +107,7 @@ int main(int argc, char* argv[]) { //*******************************************
 	gen_bins(min_meas, max_meas, bin_maxes, bin_counts, bin_count);
 
 	/* Count number of values in each bin */
+#  pragma omp parallel for num_threads(2) private(bin)
 	for (int i = 0; i < data_count; i++) {
 		bin = which_bin(data[i], bin_maxes, bin_count, min_meas);
 		bin_counts[bin]++;
@@ -130,17 +120,18 @@ int main(int argc, char* argv[]) { //*******************************************
 	cout << endl;
 #  endif
 
+	clock_t stop = clock();
+	float secs = ((float)(stop - start) / CLOCKS_PER_SEC);
+	cout <<"Secuencialmente duro(con tilde): " << secs << endl;
+
 	/* Print the histogram */
 	cout << endl << endl;
 	print_histo(bin_maxes, bin_counts, bin_count, min_meas);
 
+
 	cin >> bin;
 	return 0;
 }  /* main ********************************************************************************/
-
-bool validaCntHilos(int ch) {
-	return ch >= 1;
-}
 
 
 /*---------------------------------------------------------------------
@@ -177,7 +168,7 @@ void get_args(
 	max_meas_p = strtof(argv[3], NULL);
 	data_count_p = strtol(argv[4], NULL, 10);
 
-#  ifdef DEBUG
+#  ifdef DEBUG 
 	cout << "bin_count = " << bin_count_p << endl;
 	cout << "min_meas = " << min_meas_p << "max_meas = " << max_meas_p << endl;
 	cout << "data_count = " << data_count_p << endl;
@@ -199,7 +190,8 @@ void gen_data(
 	int     data_count  /* in  */) {
 
 	srand(0);
-	for (int i = 0; i < data_count; i++)
+#  pragma omp parallel for num_threads(2)
+	for (int i = 0; i < data_count; i++)//Debería ir un menos uno, en caso de fallo, ese es un caso probable//OVEJAS_LANUDAS
 		data[i] = min_meas + (max_meas - min_meas)*rand() / ((double)RAND_MAX);
 
 #  ifdef DEBUG
