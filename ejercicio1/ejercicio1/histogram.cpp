@@ -48,6 +48,7 @@ void get_args(
 void gen_data(
 	float   min_meas    /* in  */,
 	float   max_meas    /* in  */,
+	int		tCount		/* in */,
 	vector<float>&   data /* out */,
 	int     data_count  /* in  */);
 
@@ -73,7 +74,7 @@ void print_histo(
 
 
 int main(int argc, char* argv[]) { //********************************************************
-	int bin_count, bin;    // cantidad de bins, bin actual, bin == rango
+	int bin_count, bin, tCount;    // cantidad de bins, bin actual, bin == rango
 	float min_meas, max_meas; // valor inferior de datos, valor superior de datos
 	vector<float> bin_maxes;  // vector de m�ximos por bin
 	vector<int> bin_counts;   // vector para contar valores por bin
@@ -86,13 +87,20 @@ int main(int argc, char* argv[]) { //*******************************************
 	*/
 		/*¡¡¡¡¡¡¡¡¡Nuestro Código!!!!!!!!!!!*/
 
+	//cout << "Indique el numero de hilos: " << endl;
+	//cin >> tCount;
 
 	cout<<"Antes de get_args"<<endl;
+
+	/* Get the number of threats*/
+	cout << "Indique el numero de hilos: " << endl;
+	cin >> tCount;
 
 	/* Check and get command line args */
 	clock_t start = clock();
 	if (argc != 5) usage(argv[0]);
 	get_args(argv, bin_count, min_meas, max_meas, data_count);
+
 
 	/* Allocate arrays needed */
 
@@ -101,13 +109,13 @@ int main(int argc, char* argv[]) { //*******************************************
 	data.resize(data_count);
 
 	/* Generate the data */
-	gen_data(min_meas, max_meas, data, data_count);
+	gen_data(min_meas, max_meas, tCount, data, data_count);
 
 	/* Create bins for storing counts */
 	gen_bins(min_meas, max_meas, bin_maxes, bin_counts, bin_count);
 
 	/* Count number of values in each bin */
-#  pragma omp parallel for num_threads(2) private(bin)
+#  pragma omp parallel for num_threads(tCount) private(bin)
 	for (int i = 0; i < data_count; i++) {
 		bin = which_bin(data[i], bin_maxes, bin_count, min_meas);
 		bin_counts[bin]++;
@@ -186,11 +194,12 @@ void get_args(
 void gen_data(
 	float   min_meas    /* in  */,
 	float   max_meas    /* in  */,
+	int		tCount		/* in */,
 	vector<float>&   data /* out */,
 	int     data_count  /* in  */) {
 
 	srand(0);
-#  pragma omp parallel for num_threads(2)
+#  pragma omp parallel for num_threads(tCount)
 	for (int i = 0; i < data_count; i++)//Debería ir un menos uno, en caso de fallo, ese es un caso probable//OVEJAS_LANUDAS
 		data[i] = min_meas + (max_meas - min_meas)*rand() / ((double)RAND_MAX);
 
