@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
 	std::cout << '\n';
 
 	int i2, f2;
+	int mitad = data_count / 2;
 
 	vector<int> resultado;
 	resultado.reserve(data_count);
@@ -64,7 +65,8 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < tCount-1; i++) {
 		i2 = local_n * i;
 		f2 = local_n + i2;
-		merge((aleatorios.begin()), (aleatorios.begin() + local_final), (aleatorios.begin() + i2), (aleatorios.begin() + f2), aleatorios.begin());
+		merge((aleatorios.begin()),(aleatorios.begin()+mitad),(aleatorios.begin()+mitad),(aleatorios.end()),(aleatorios.begin()));
+	//	merge((aleatorios.begin()), (aleatorios.begin() + local_final), (aleatorios.begin() + i2), (aleatorios.begin() + f2), aleatorios.begin());
 		local_final = f2;
 	}
 //#endif
