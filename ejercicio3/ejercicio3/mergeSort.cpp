@@ -20,8 +20,11 @@ bool validaCntHilos(int ch);
 //vector<int>* mergesort(int* inicio, int* final, vector<int>* vector);
 
 vector<int> aleatorios;
-vector<int> resultado(100, 0);
-
+vector<int> resultado;
+vector<vector<int>> vectores;
+vector<int> myVector;
+vector<int> merge1;
+vector<int> merge2;
 int main(int argc, char* argv[]) {
 	int tCount = 0;
 	int	n,data_count,local_inicio,local_final,local_n,my_Rank;
@@ -33,56 +36,80 @@ int main(int argc, char* argv[]) {
 		cin >> data_count;
 		cout << endl;
 	}
+
+	int k = 0;
 	aleatorios.reserve(data_count);
 	local_n = data_count / tCount;
-	int k = 0;
-
-//#  pragma omp parallel for num_threads(tCount) private(k) //Lo Hace "bien" pero cada hilo genera el mismo número entonces :c
 	for (int i = 0; i < data_count; i++) {
 		k = rand() % 100 + 1;
-//#	pragma omp critical
-		cout << k << endl;
 		aleatorios.push_back(k);
 	}
 
+	myVector.reserve(local_n);
+
 #pragma omp parallel num_threads(tCount) private(local_inicio,local_final,my_Rank)
 	{
+		myVector.clear();//JustInCase
 		my_Rank = omp_get_thread_num();
 		local_inicio = local_n * my_Rank;
 		local_final = local_n + local_inicio;
 		sort((aleatorios.begin() + local_inicio), (aleatorios.begin() + local_final));
+		for(int i = local_inicio; i < local_final; i++) {
+			myVector.push_back(aleatorios[i]);
+		}
+#pragma omp critical
+		vectores.push_back(myVector);
 	}
 
+	/*
 	std::cout << "Lista contiene:";
 	for (std::vector<int>::iterator it = aleatorios.begin(); it != aleatorios.end(); ++it)
 		std::cout << ' ' << *it;
 	cout << '\n';
 
-	int i2, f2;
+
+	/*int i2, f2;
 	int mitad = aleatorios.size()/ 2;
-	resultado.reserve(data_count);
+	resultado.resize(data_count);
 	//cout << resultado.size << endl;
 	local_final = local_n;
+	merge1.reserve(local_n);
+	merge2.reserve(local_n);
+	while(vectores.size()!=1){
+		resultado.clear();
+		resultado.resize(vectores[0].size()*2, 100);
+		merge1 = vectores[0];
+		merge2 = vectores[1];	
+		vectores.erase(vectores.begin());
+		vectores.erase(vectores.begin());
+		merge(merge1.begin(), merge1.end(), merge2.begin(), merge2.end(), resultado.begin());	
+		aleatorios = resultado;
+		vectores.push_back(aleatorios);
+	}*/
 
-	/*
-	std::vector<int>::iterator iti = aleatorios.begin();
-	cout << "El inicio es " << *iti << endl;
-	vector<int>::iterator itm = aleatorios.begin() + mitad + 1;
-	cout << "La mitad es " << *itm << endl;
-	*/
-
-	//merge((aleatorios.begin()), (aleatorios.begin() + mitad), (aleatorios.begin() + mitad), (aleatorios.end()), resultado.begin());
-
-	for (int i = 1; i < tCount-1; i++) {
-		i2 = local_n * i;
-		f2 = local_n + i2;
-	//	merge((aleatorios.begin()),(aleatorios.begin()+mitad),(aleatorios.begin()+mitad),(aleatorios.end()),(aleatorios.begin()));
-		merge((aleatorios.begin()), (aleatorios.begin() + local_final), (aleatorios.begin() + i2), (aleatorios.begin() + f2), resultado.begin());
-		local_final = f2;
+	while (vectores.size() != 1) {
+		cout << "Hello world" << endl;
+		tCount = tCount / 2;
+#pragma omp parallel num_threads(tCount) private(my_Rank, resultado)
+		{
+			resultado.clear();
+			resultado.resize(vectores[0].size() * 2, 0);
+			my_Rank = omp_get_thread_num()*2;
+			//merge1 = vectores[0];
+			//merge2 = vectores[1];
+			//vectores.erase(vectores.begin());
+			merge(vectores[my_Rank].begin(), vectores[my_Rank].end(), vectores[my_Rank + 1].begin(), vectores[my_Rank + 1].end(), resultado.begin());
+#pragma omp critical
+			vectores.push_back(resultado);
+		}
+#pragma omp barrier
+		for (int j = 0; j < tCount*2; j++) {
+			vectores.erase(vectores.begin());
+		}
 	}
 	
 	std::cout << "El resultado es: ";
-	for (std::vector<int>::iterator it = resultado.begin(); it != resultado.end(); ++it)
+	for (std::vector<int>::iterator it = vectores[0].begin(); it != vectores[0].end(); it++)
 		std::cout << ' ' << *it;
 	std::cout << '\n';
 
