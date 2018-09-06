@@ -45,3 +45,8 @@ ejercicio2/ejercicio2/ejercicio2.vcxproj.user
 ejercicio3/.vs/ejercicio3/v15/Browse.VC.opendb
 ejercicio3/.vs/ejercicio3/v15/Browse.VC.db
 ejercicio3/.vs/ejercicio3/v15/ipch/AutoPCH/bd1674f38cb622fc/MERGE.ipch
+ejercicio3/.vs/ejercicio3/v15/.suo
+*.ipch
+ejercicio3/ejercicio3.sln
+ejercicio3/ejercicio3/Debug/ejercicio3.log
+ejercicio3/ejercicio3/merge.cpp
