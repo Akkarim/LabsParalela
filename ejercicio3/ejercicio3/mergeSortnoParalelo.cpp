@@ -1,4 +1,4 @@
-/*
+
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
@@ -11,9 +11,14 @@
 //#include <love>
 #include <time.h>
 
+
 using namespace std;
 
+
 bool validaCntHilos(int ch);
+
+//vector<int>* mergesort(int* inicio, int* final, vector<int>* vector);
+
 
 int main(int argc, char* argv[]) {
 	vector<int> aleatorios; //Lista de números
@@ -24,7 +29,7 @@ int main(int argc, char* argv[]) {
 	vector<int> merge2;
 
 	int tCount = 0;
-	int	n,data_count,local_inicio,local_final,local_n,my_Rank;
+	int	n, data_count, local_inicio, local_final, local_n, my_Rank;
 
 	while (!validaCntHilos(tCount)) {
 		cout << "Digite la cantidad de hilos ( >= 1 ): ";
@@ -53,33 +58,42 @@ int main(int argc, char* argv[]) {
 		local_inicio = local_n * my_Rank;
 		local_final = local_n + local_inicio;
 		sort((aleatorios.begin() + local_inicio), (aleatorios.begin() + local_final));
-		for(int i = local_inicio; i < local_final; i++) {
-			myVector.push_back(aleatorios[i]);
-		}
+		/*for (int i = local_inicio; i < local_final; i++) {
+			myVector.push_back(aleatorios[i]); //Hay que cambiar esto para la versión paralela del merge
+		}*/
 #pragma omp critical
 		vectores.push_back(myVector);
 	}
-		
-	while (vectores.size() != 1) { //---------------------------Merge Paralelizado-----------------------------------------
-		tCount = tCount / 2;
-#		pragma omp parallel num_threads(tCount) private(my_Rank, resultado)
-		{
-			resultado.clear();
-			resultado.resize(vectores[0].size() * 2, 0);
-			my_Rank = omp_get_thread_num()*2;
-			merge(vectores[my_Rank].begin(), vectores[my_Rank].end(), vectores[my_Rank + 1].begin(), vectores[my_Rank + 1].end(), resultado.begin());
-#		pragma omp critical
-			vectores.push_back(resultado);
-		}
-#	pragma omp barrier
-		for (int j = 0; j < tCount*2; j++) {
-			vectores.erase(vectores.begin());
-		}
-	} //-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-		std::cout << "El resultado es: ";
-		for (std::vector<int>::iterator it = vectores[0].begin(); it != vectores[0].end(); it++)
-			std::cout << ' ' << *it;
-		std::cout << '\n';
+
+	std::cout << "Lista contiene:";
+	for (std::vector<int>::iterator it = aleatorios.begin(); it != aleatorios.end(); ++it)
+		std::cout << ' ' << *it;
+	cout << '\n';
+	
+	
+	int i2, f2; //-------------------------------------Merge sin paralelizar------------------------------------------------
+	int mitad = aleatorios.size()/ 2;
+	resultado.resize(data_count);
+	local_final = local_n;
+	merge1.reserve(local_n);
+	merge2.reserve(local_n);
+	while(vectores.size()!=1){
+		resultado.clear();
+		resultado.resize(vectores[0].size()*2, 0);
+		merge1 = vectores[0];
+		merge2 = vectores[1];
+		merge(merge1.begin(), merge1.end(), merge2.begin(), merge2.end(), resultado.begin());
+		//aleatorios = resultado;
+		vectores.push_back(resultado);
+		vectores.erase(vectores.begin());
+		vectores.erase(vectores.begin());
+	}
+
+	std::cout << "El resultado es: ";
+	for (std::vector<int>::iterator it = resultado.begin(); it != resultado.end(); it++)
+		std::cout << ' ' << *it;
+	std::cout << '\n';
+	//---------------------------------------------------------------------------------------------------------------------
 
 	cin >> n;
 	return 0;
@@ -88,4 +102,3 @@ int main(int argc, char* argv[]) {
 bool validaCntHilos(int ch) {
 	return ch >= 1;
 }
-*/
