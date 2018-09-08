@@ -58,9 +58,9 @@ int main(int argc, char* argv[]) {
 		local_inicio = local_n * my_Rank;
 		local_final = local_n + local_inicio;
 		sort((aleatorios.begin() + local_inicio), (aleatorios.begin() + local_final));
-		/*for (int i = local_inicio; i < local_final; i++) {
+		for (int i = local_inicio; i < local_final; i++) {
 			myVector.push_back(aleatorios[i]); //Hay que cambiar esto para la versión paralela del merge
-		}*/
+		}
 #pragma omp critical
 		vectores.push_back(myVector);
 	}
@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
 		merge1 = vectores[0];
 		merge2 = vectores[1];
 		merge(merge1.begin(), merge1.end(), merge2.begin(), merge2.end(), resultado.begin());
-		//aleatorios = resultado;
-		vectores.push_back(resultado);
+		aleatorios = resultado;
+		vectores.push_back(aleatorios);
 		vectores.erase(vectores.begin());
 		vectores.erase(vectores.begin());
 	}
