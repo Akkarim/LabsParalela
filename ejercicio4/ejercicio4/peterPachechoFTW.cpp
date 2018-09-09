@@ -9,17 +9,19 @@
 #include <random>
 #include <algorithm>
 #include <sstream>
-//#include"queue_lk.h"
+#include"queue_lk.h"
 //#include <yourself>
 //#include <love>
 
 using namespace std;
 
 bool validaCntHilos(int ch);
+queue_lk <string> cola;
 
 int main(int argc, char* argv[]) {
 	int n, hConsidores; //Hilos productores, Hilos consumidores
 	int hProductores = 0;
+	string textoParcial;
 
 	while (!validaCntHilos(hProductores)) {
 		cout << "Digite la cantidad de Hilos Productores ( >= 1 ): " << endl;
@@ -39,9 +41,11 @@ int main(int argc, char* argv[]) {
 		c = lectura.get();
 	} 
 	cout << content << endl;
+	cola.push(content);
 
 	//------------------------Tokenizador para consumidor-----------------------------------------------------------------
-	istringstream iss(content);
+	textoParcial = cola.front().msg;
+	istringstream iss(textoParcial);
 	string token;
 	while (getline(iss, token, ' ')) {
 		cout << token << endl;
