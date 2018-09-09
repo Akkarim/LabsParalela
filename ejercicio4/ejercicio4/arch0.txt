@@ -1,2 +1,2 @@
-Pene grande como el de Fritz el senor vocal 2
-Pequeno como el de Felipe
+Esta es la linea 1 del archivo0.
+Esta es la linea 2 del archivo0.

@@ -29,7 +29,7 @@ public:
 		msg_t(TT m) : src_rank(0), msg(m) {};
 		msg_t(int sr, const TT& tt) : src_rank(sr), msg(tt) {};
 	};
-
+	int c = 0;
 	queue_lk();
 	queue_lk(const queue< T >& orig);
 	~queue_lk();
@@ -89,7 +89,8 @@ bool queue_lk< T >::empty() const {
 
 template < typename T >
 int queue_lk< T >::size() const {
-	return enqueued - dequeued;
+	return c;
+	//return enqueued - dequeued;
 }
 
 template < typename T >
@@ -115,11 +116,13 @@ typename queue_lk< T >::msg_t < T > queue_lk< T >::back() const {
 template < typename T >
 void queue_lk< T >::push(const msg_t < T >& msg_val) {
 	q.push(msg_val);
+	c++;
 }
 
 template < typename T >
 void queue_lk< T >::pop() {
 	q.pop();
+	c--;
 }
 
 template < typename T >
