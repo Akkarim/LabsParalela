@@ -7,10 +7,10 @@
 using namespace std;
 
 void leeAdyacencias(ifstream& ae, vector< vector< int > >& ma, int& cntVertices);
-void algoritmoFloydWarshall(const vector< vector< int > >& ma, vector< vector< int > >& mc);
+void algoritmoFloydWarshall(const vector< vector< int > >& ma, vector< vector< int > >& mc, int& cntVertices);
 
 int main() {
-	string nombreArchivoEntrada = "redPeq.txt"; // formato *.txt, por ejemplo "grafo.txt
+	string nombreArchivoEntrada = "gmediano.txt"; // formato *.txt, por ejemplo "grafo.txt
 	string nombreArchivoSalida;  // formato *.txt, por ejemplo matriz_costos.txt 
 	ifstream archivoEntrada(nombreArchivoEntrada, ios::in);
 	ofstream archivoSalida(nombreArchivoSalida, ios::out);
@@ -29,16 +29,29 @@ int main() {
 	cout << "MATRIZ DE ADYACENCIAS" << endl;
 	for (int i = 0; i < cntVertices; i++) {
 		for (int j = 0; j < cntVertices; j++)
-			cout << matrizAdyacencias[i][j] << ',';
+			if (matrizAdyacencias[i][j] > 1) {
+				matrizAdyacencias[i][j] = 10000;
+				cout << "0" << ',';
+			}
+			else {
+				cout << matrizAdyacencias[i][j] << ',';
+			}
 		cout << endl;
 	}
 	
 	// se toma una marca de tiempo:
 	using namespace std::chrono;
 	steady_clock::time_point t1 = steady_clock::now();
-
+	//llena la matriz de costos con los numers
+	vector< int > v;
+	v.resize(cntVertices, INT_MAX);
+	matrizCostos.resize(cntVertices, v);
+	for (int i = 0; i < cntVertices; i++) {
+		for (int j = 0; j < cntVertices; j++)
+			matrizCostos[i][j] = i;
+	}
 	// se genera la matriz de costos
-	algoritmoFloydWarshall(matrizAdyacencias, matrizCostos);
+	algoritmoFloydWarshall(matrizAdyacencias, matrizCostos, cntVertices);
 
 	// se toma otra marca de tiempo
 	steady_clock::time_point t2 = steady_clock::now();
@@ -47,6 +60,7 @@ int main() {
 	// se despliega la duración:
 	std::cout << endl << "Duracion " << time_span.count() << " segundos.";
 	std::cout << std::endl;
+
 
 	// se despliega la matriz de costos:
 	cout << endl << "MATRIZ DE COSTOS" << endl;
@@ -58,11 +72,12 @@ int main() {
 	cin.ignore(); // para que la consola no se cierre sin ver los resultados al ejecutar desde Visual Studio
 }
 
+
 void leeAdyacencias(ifstream& ae, vector< vector< int > >& ma, int& cntVertices) {
-	int pe;
+	
 	char finLinea = ' ';
 	int contadorLineas = 0;
-
+	int pe;
 	ae >> cntVertices; // el primer número del archivo es la cantidad de vértices
 	vector< int > v;
 	v.resize(cntVertices, INT_MAX);
@@ -88,6 +103,19 @@ void leeAdyacencias(ifstream& ae, vector< vector< int > >& ma, int& cntVertices)
 	}
 }
 
-void algoritmoFloydWarshall(const vector< vector< int > >& ma, vector< vector< int > >& mc) {
-	// su código
+void algoritmoFloydWarshall(const vector< vector< int > >& ma, vector< vector< int > >& mc, int& cntVertices) {
+	int sum;
+#  pragma omp parallel for num_threads(8) 
+	for (int k = 0; k < cntVertices; k++) {
+#  pragma omp_set_nested(2) 
+		for (int i = 0; i < cntVertices; i++) {
+#  pragma omp_set_nested(3) 
+			for (int j = 0; j < cntVertices; j++) {
+				sum = ma[i][k] + ma[k][j];
+				if ( sum < ma[i][j]) {
+					mc[i][j] = k;
+				}
+			}
+		}
+	}
 }
