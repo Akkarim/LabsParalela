@@ -27,11 +27,7 @@ int main(int argc, char* argv[]) {
 
 	while (!validaCntHilos(hProductores)) {
 		cout << "Digite la cantidad de Hilos Productores, los consumidores se asignarán según la nececidad ( >= 1 ): " << endl;
-<<<<<<< HEAD
-		cin >> hProductores;
-=======
 		cin >> hProductores; 
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
 		cout << "Digite la cantidad de Hilos Consumidores ( >= 1 ): " << endl; // Si lo prueba con 3 hilos funciona más o menos
 		cin >> hConsumidores;
 		cout << endl;
@@ -48,24 +44,15 @@ int main(int argc, char* argv[]) {
 		ifstream lectura;
 		lectura.open("arch" + to_string(indice) + ".txt", ios::in);
 		char c = lectura.get();
-<<<<<<< HEAD
 		while (lectura.good()) { // Funciona casi como good hay que ver cuál funciona mejor
-=======
-		while (!lectura.eof()) { // Funciona casi como good hay que ver cuál funciona mejor
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
 			if (c == '.') { // Con \n no estaba funcando, se puede poner otra flag o mejorar
 				cont++;
 #	pragma omp critical
 				{
 					linea = content;
 					cola.push(linea);
-<<<<<<< HEAD
 					content = "";
 					linea.clear(); // Para separar las líneas
-					linea.empty();
-=======
-					linea.clear(); // Para separar las líneas
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
 				}
 				c = lectura.get();
 			}
@@ -96,13 +83,9 @@ int main(int argc, char* argv[]) {
 
 #pragma omp parallel num_threads(hConsumidores)// private(lineaArchivo) 
 	{
-<<<<<<< HEAD
+
 #	pragma omp critical
 		while (!cola.empty()) {
-
-=======
-		while (!cola.empty()) {
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
 			if (cola.size() == 1) { //Si se pone <= cambia el comportamiento
 				cola.set_lock();
 				lineaArchivo = cola.front().msg;
@@ -113,10 +96,10 @@ int main(int argc, char* argv[]) {
 				lineaArchivo = cola.front().msg;
 				cola.pop();
 			}
-<<<<<<< HEAD
-			
-			istringstream iss(lineaArchivo);
+
+			istringstream iss(lineaArchivo);	
 			string token;
+				
 			while (getline(iss, token, ' ')) {
 				cout << token << endl;
 			}
@@ -125,25 +108,6 @@ int main(int argc, char* argv[]) {
 
 	cin >> n;
 	return 0;
-=======
-#	pragma omp critical
-			{
-				istringstream iss(lineaArchivo);
-				string token;
-				while (getline(iss, token, ' ')) {
-					cout << token << endl;
-				}
-			}
-		}
-	}
-
-	cin >> n;
-	return 0;
-}
-
-bool validaCntHilos(int ch) {
-	return ch >= 1;
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
 }
 
 bool validaCntHilos(int ch) {
@@ -168,7 +132,7 @@ bool validaCntHilos(int ch) {
 */
 //-----------------------------fin---------------------------------------------------
 
-<<<<<<< HEAD
+
 //------------------------Tokenizador para consumidor-----------------------------------------------------------------
 /*
 	textoParcial = cola.front().msg;
@@ -189,7 +153,7 @@ nombre << c << endl;
 nombre.close();
 */
 //----------------------------fin----------------------------------------------------
-=======
+
 //----------------------Guarda un archivo--------------------------------------------
 /*
 string numero = to_string(hProductores); // Convertir el número a String
@@ -200,4 +164,4 @@ nombre.close();
 */
 //----------------------------fin----------------------------------------------------
 
->>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
+
