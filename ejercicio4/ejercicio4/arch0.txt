@@ -1,3 +1,7 @@
 Esta es la linea 1 del archivo0.
+<<<<<<< HEAD
 Esta es la linea 2 del archivo0.
 Esta es la linea 3 del archivo0.
+=======
+Esta es la linea 2 del archivo0.
+>>>>>>> 889aa62cdd4b8846f5e614e705e171d798af8314
