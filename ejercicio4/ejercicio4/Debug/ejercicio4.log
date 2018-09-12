@@ -1,3 +1,4 @@
 ﻿  peterPachechoFTW.cpp
-c1xx : warning C4199: no se admite la búsqueda de nombres en dos fases para OpenMP, C++/CLI o C++/CX. Use /Zc:twoPhase-
-  ejercicio4.vcxproj -> C:\Users\Luis\Documents\GitHub\Paralela-Lab-1\ejercicio4\Debug\ejercicio4.exe
+c1xx : warning C4199: two-phase name lookup is not supported for C++/CLI, C++/CX, or OpenMP; use /Zc:twoPhase-
+c:\users\luisd\documents\paralela\labs\paralela-lab-1\ejercicio4\ejercicio4\peterpachechoftw.cpp(138): warning C4018: '<': signed/unsigned mismatch
+  ejercicio4.vcxproj -> C:\Users\luisd\Documents\Paralela\Labs\Paralela-Lab-1\ejercicio4\Debug\ejercicio4.exe

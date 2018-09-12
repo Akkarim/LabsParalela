@@ -1,4 +1,4 @@
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -27,16 +27,19 @@ int main(int argc, char* argv[]) {
 	string linea;
 
 	while (!validaCntHilos(hProductores)) {
-		cout << "Digite la cantidad de Hilos Productores, los consumidores se asignarán según la nececidad ( >= 1 ): " << endl;
+		cout << "Digite la cantidad de Hilos Productores ( >= 1 ): " << endl;
 		cin >> hProductores;
 		cout << "Digite la cantidad de Hilos Consumidores ( >= 1 ): " << endl; // Si lo prueba con 3 hilos funciona más o menos
 		cin >> hConsumidores;
 		cout << endl;
 	}
-	//------------------------Asignar hilos--------------------------------------------------------------
+	//---------------------------Asignar hilos--------------------------------------------------------------
 	vector<int> productores;
 	vector<int> consumidores;
 	indice = hProductores + hConsumidores;
+	productores.reserve(hProductores);
+	consumidores.reserve(hConsumidores);
+
 	for (int i = 0; i < indice; i++) {
 		if (i < hProductores) {
 			productores.push_back(i);
@@ -45,13 +48,24 @@ int main(int argc, char* argv[]) {
 			consumidores.push_back(i);
 		}
 	}
+
+	std::cout << "El Productores es: ";
+	for (std::vector<int>::iterator it = productores.begin(); it != productores.end(); it++)
+		std::cout << ' ' << *it;
+	std::cout << '\n';
+
+	std::cout << "El consumidores es: ";
+	for (std::vector<int>::iterator it = consumidores.begin(); it != consumidores.end(); it++)
+		std::cout << ' ' << *it;
+	std::cout << '\n';
+
 	//indice = 0;
 	//------------------------Lee un archivo para Productores en Paralelo---------------------------------------------
 
 	string content; //Lo que se guarda en la pila
 	int cont = 0;
 	int cont2 = 0;
-#	pragma omp parallel num_threads(hProductores+hConsumidores) private(indice, content, linea) //Puse content como privada
+#	pragma omp parallel num_threads(hProductores+hConsumidores) private(content, linea) //Puse content como privada
 	{
 		indice = omp_get_thread_num();
 		if (find(productores, indice)) {
@@ -67,7 +81,6 @@ int main(int argc, char* argv[]) {
 						cola.push(linea);
 						content = "";
 						linea.clear(); // Para separar las líneas
-
 					}
 					c = lectura.get();
 				}
@@ -77,71 +90,38 @@ int main(int argc, char* argv[]) {
 					c = lectura.get();
 				}
 			}
-		}
-		else{
-			while (!cola.empty()) {
-				if (cola.size() == 1) { //Si se pone <= cambia el comportamiento
-					cola.set_lock();
-					lineaArchivo = cola.front().msg;
-					cola.pop();
-					cola.unset_lock();
-				}
-				else {
-					lineaArchivo = cola.front().msg;
-					cola.pop();
-				}
-
-				istringstream iss(lineaArchivo);
-				string token;
-#	pragma omp critical
-				{
-					while (getline(iss, token, ' ')) {
-						cout << token << endl;
+			//---------------------------------------------Consumidores-----------------------------------------------------
+			if (find(consumidores, indice)) {
+				while (!cola.empty()) {
+					if (cola.size() == 1) { //Si se pone <= cambia el comportamiento
+						cola.set_lock();
+						lineaArchivo = cola.front().msg;
+						cola.pop();
+						cola.unset_lock();
 					}
-					cout << "Impreso por el hilo: " << indice << endl;
+					else {
+						lineaArchivo = cola.front().msg;
+						cola.pop();
+					}
+					istringstream iss(lineaArchivo);
+					string token;
+#	pragma omp critical
+					{
+						while (getline(iss, token, ' ')) {
+							cout << token << endl;
+						}
+						cout << "Impreso por el hilo: " << indice << endl;
+					}
 				}
 			}
+			//---------------------------------------------Consumidores-----------------------------------------------------
 		}
-		}
-		//lectura.close();
+
+	}
 
 	cout << "Contador de rayan " << cont << endl;
 	cout << "Contador " << cont2 << endl;
 	cout << "Tamaño de la cola " << cola.size() << endl;
-
-	/*cout << "Primero " << cola.front().msg << endl;
-	cola.pop();
-	cout << "Segundo " << cola.front().msg << endl;
-	cola.pop();
-	cout << "Tercero " << cola.front().msg << endl;
-	cola.pop();
-	cout << "Cuarto " << cola.front().msg << endl;
-	cola.pop();
-	cout << "Quinto " << cola.front().msg << endl;
-	*/
-
-
-	//#	pragma omp critical
-	//	while (!cola.empty()) {
-	//		if (cola.size() == 1) { //Si se pone <= cambia el comportamiento
-	//			cola.set_lock();
-	//			lineaArchivo = cola.front().msg;
-	//			cola.pop();
-	//			cola.unset_lock();
-	//		}
-	//		else {
-	//			lineaArchivo = cola.front().msg;
-	//			cola.pop();
-	//		}
-	//
-	//		istringstream iss(lineaArchivo);
-	//		string token;
-	//
-	//		while (getline(iss, token, ' ')) {
-	//			cout << token << endl;
-	//		}
-	//	}
-
 
 	cin >> n;
 	return 0;
@@ -159,53 +139,3 @@ bool find(vector<int> vector, int id) {
 	}
 	return false;
 }
-
-
-
-
-
-
-//------------------------Tokenizador para consumidor-----------------------------------------------------------------
-/*
-	textoParcial = cola.front().msg;
-	istringstream iss(textoParcial);
-	string token;
-	while (getline(iss, token, ' ')) {
-		cout << token << endl;
-	}
-*/
-//-----------------------------fin---------------------------------------------------
-
-
-//------------------------Tokenizador para consumidor-----------------------------------------------------------------
-/*
-	textoParcial = cola.front().msg;
-	istringstream iss(textoParcial);
-	string token;
-	while (getline(iss, token, ' ')) {
-		cout << token << endl;
-	}
-*/
-//-----------------------------fin---------------------------------------------------
-
-//----------------------Guarda un archivo--------------------------------------------
-/*
-string numero = to_string(hProductores); // Convertir el número a String
-string nombreArchivo = "arch" + numero + ".txt"; //Formar el nombre del archivo
-ofstream nombre(nombreArchivo);
-nombre << c << endl;
-nombre.close();
-*/
-//----------------------------fin----------------------------------------------------
-
-//----------------------Guarda un archivo--------------------------------------------
-/*
-string numero = to_string(hProductores); // Convertir el número a String
-string nombreArchivo = "arch" + numero + ".txt"; //Formar el nombre del archivo
-ofstream nombre(nombreArchivo);
-nombre << c << endl;
-nombre.close();
-*/
-//----------------------------fin----------------------------------------------------
-
-
